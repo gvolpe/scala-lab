@@ -1,6 +1,8 @@
-//> using scala "3.nightly"
+//> using scala "3.2.2-RC1-bin-20220912-b5203de-NIGHTLY"
 //> using lib "org.typelevel::cats-effect:3.3.12"
 //> using options "-Ycc"
+
+// NOTE: scala "3.nightly" can be used to always pull the latest version
 
 /*********** Capture Checking **************/
 

@@ -12,16 +12,34 @@
         jre = p.jdk17_headless;
       };
 
+      nativeOverlay = f: p: {
+        scala-cli-native = p.symlinkJoin
+          {
+            name = "scala-cli-native";
+            paths = [ p.scala-cli ];
+            buildInputs = [ p.makeWrapper ];
+            postBuild = ''
+              wrapProgram $out/bin/scala-cli \
+              --prefix LLVM_BIN : "${p.llvmPackages.clang}/bin" \
+              --add-flags "package --native"
+            '';
+          };
+      };
+
       forSystem = system:
         let
 
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [ jreOverlay ];
+            overlays = [ jreOverlay nativeOverlay ];
           };
 
-          app = pkgs.writeShellScriptBin "scala-lab-app" ''
-            ${pkgs.scala-cli}/bin/scala-cli run .
+          labApp = pkgs.writeShellScriptBin "scala-lab-app" ''
+            ${pkgs.scala-cli}/bin/scala-cli run main.scala
+          '';
+
+          nativeApp = pkgs.writeShellScriptBin "scala-native-app" ''
+            ${pkgs.scala-cli-native}/bin/scala-cli hello.scala -- --no-fallback
           '';
         in
         {
@@ -33,7 +51,12 @@
             '';
           };
 
-          packages.default = app;
+          packages = rec {
+            lab = labApp;
+            native = nativeApp;
+
+            default = lab;
+          };
         };
     in
     flake-utils.lib.eachDefaultSystem forSystem;
