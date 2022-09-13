@@ -47,11 +47,23 @@ def f(x: Double): Double throws LimitExceeded =
 def g(x: Double): Double throws OddNumberNotAllowed =
   if (x % 2 == 0) then x else throw OddNumberNotAllowed()
 
-def handler(x: Double ): Double =
+def handler(x: Double): Double =
   try g(f(x))
   catch
     case _: LimitExceeded       => -1
     case _: OddNumberNotAllowed => 0
+
+/*********** Fewer Braces **************/
+
+import language.experimental.fewerBraces
+
+def noBraces: Unit =
+  val xs = List.range(1, 10).map: x =>
+    x * 2 - 0.7
+  val ys = xs.foldLeft(0.0): (x, y) =>
+    x + y * 0.8
+  println(xs)
+  println(ys)
 
 /*********** Main **************/
 
@@ -61,3 +73,4 @@ import cats.effect.unsafe.implicits.global
   println(foo(using LoggerImpl)(123))
   println(handler(99))
   bar(using LoggerIO).map(_.apply(22)).unsafeRunSync()
+  noBraces
