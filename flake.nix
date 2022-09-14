@@ -20,15 +20,13 @@
             buildInputs = [ p.makeWrapper ];
             postBuild = ''
               wrapProgram $out/bin/scala-cli \
-              --prefix LLVM_BIN : "${p.llvmPackages.clang}/bin" \
-              --add-flags "package --native"
+                --prefix LLVM_BIN : "${p.llvmPackages.clang}/bin"
             '';
           };
       };
 
       forSystem = system:
         let
-
           pkgs = import nixpkgs {
             inherit system;
             overlays = [ jreOverlay nativeOverlay ];
@@ -39,7 +37,7 @@
           '';
 
           nativeApp = pkgs.writeShellScriptBin "scala-native-app" ''
-            ${pkgs.scala-cli-native}/bin/scala-cli hello.scala -- --no-fallback
+            ${pkgs.scala-cli-native}/bin/scala-cli package hello.scala -- --no-fallback
           '';
         in
         {
